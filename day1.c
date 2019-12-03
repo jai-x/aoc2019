@@ -5,6 +5,8 @@
 
 #define LINE_SIZE 256
 
+static const char* filename = "./input/day1.txt";
+
 static int
 fuel(int mass)
 {
@@ -15,9 +17,9 @@ fuel(int mass)
 void
 day1(void)
 {
-	FILE* input = fopen("./input/day1.txt", "r");
+	FILE* input = fopen(filename, "r");
 	if (!input) {
-		puts("Error opening file!");
+		printf("Error opening file: %s\n", filename);
 		exit(EXIT_FAILURE);
 	}
 

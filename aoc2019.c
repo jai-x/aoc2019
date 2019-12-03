@@ -7,5 +7,6 @@ int
 main(void)
 {
 	day1();
+	day2();
 	return EXIT_SUCCESS;
 }
