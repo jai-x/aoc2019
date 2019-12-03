@@ -11,5 +11,5 @@ $(BIN): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(BIN)
 
 clean:
-	rm -f $(OBJS)
+	rm -f *.o
 	rm -f $(BIN)

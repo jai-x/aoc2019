@@ -6,7 +6,8 @@
 int
 main(void)
 {
-	day1();
-	day2();
+	//day1();
+	//day2();
+	day3();
 	return EXIT_SUCCESS;
 }
