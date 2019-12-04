@@ -1,5 +1,5 @@
 CC=cc
-CFLAGS=-Wall -Wextra -Weverything -Wpedantic -Wpedantic -std=c99
+CFLAGS=-Wall -Wextra -Weverything -Wpedantic -Wpedantic -std=c99 -Ofast
 BIN=aoc2019
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
