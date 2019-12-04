@@ -22,22 +22,34 @@ vec2i_print(vec2i v)
 }
 */
 
-static vec2i
+static inline vec2i
 vec2i_add(vec2i a, vec2i b)
 {
 	return (vec2i) { a.x + b.x, a.y + b.y };
 }
 
-static bool
+static inline bool
 vec2i_eql(vec2i a, vec2i b)
 {
 	return (a.x == b.x) && (a.y == b.y);
 }
 
-static int
+static inline bool
+vec2i_origin(vec2i v)
+{
+	return (v.x == 0) && (v.y == 0);
+}
+
+static inline int
 vec2i_origin_manhatten(vec2i v)
 {
 	return abs(v.x) + abs(v.y);
+}
+
+static inline int
+min(int a, int b)
+{
+	return (a > b) ? b : a;
 }
 
 static size_t
@@ -131,68 +143,30 @@ day3(void)
 	free(wire_1_str);
 	free(wire_2_str);
 
-	// Part 1
-	vec2i intersections[MAX_PATH_SIZE];
-	size_t num_intersections = 0;
+	// Part 1 & 2
+	int min_distance = INT_MAX;
+	int min_steps = INT_MAX;
 
 	// Very brute force!
-	for (size_t i = 0; i < wire_1_path_size; i++) {
-		for (size_t j = 0; j < wire_2_path_size; j++) {
-			if (vec2i_eql(wire_1_path[i], wire_2_path[j])) {
-				intersections[num_intersections++] = wire_1_path[i];
+	for (size_t i = 1; i < wire_1_path_size; i++) {
+		for (size_t j = 1; j < wire_2_path_size; j++) {
+			// Ignore if coordinate is the origin
+			if (vec2i_origin(wire_1_path[i]) || vec2i_origin(wire_2_path[j])) {
+				continue;
 			}
-		}
-	}
 
-	int min_distance = INT_MAX;
-	for (size_t i = 0; i < num_intersections; i++) {
-		vec2i this = intersections[i];
-		// Ignore origin
-		if (vec2i_eql((vec2i) { 0, 0 }, this)) {
-			continue;
-		}
-
-		int distance = vec2i_origin_manhatten(this);
-		if (distance < min_distance) {
-			min_distance = distance;
+			// Intersection found
+			if (vec2i_eql(wire_1_path[i], wire_2_path[j])) {
+				// Store minimal manhatten distance from origin to this intersection
+				min_distance = min(min_distance, vec2i_origin_manhatten(wire_1_path[i]));
+				// Store minimum combined steps to reach this intersection
+				min_steps = min(min_steps, (int) i + (int) j);
+			}
 		}
 	}
 
 	printf("Day 3, Part 1: %d\n", min_distance);
-
-	// Part 2
-	size_t min_steps = INT_MAX;
-	for (size_t i = 0; i < num_intersections; i++) {
-		vec2i this = intersections[i];
-		// Ignore origin
-		if (vec2i_eql((vec2i) { 0, 0 }, this)) {
-			continue;
-		}
-
-		size_t wire_1_steps = 0;
-		while (wire_1_steps < wire_1_path_size) {
-			if (vec2i_eql(this, wire_1_path[wire_1_steps])) {
-				break;
-			}
-			wire_1_steps++;
-		}
-
-		size_t wire_2_steps = 0;
-		while (wire_2_steps < wire_2_path_size) {
-			if (vec2i_eql(this, wire_2_path[wire_2_steps])) {
-				break;
-			}
-			wire_2_steps++;
-		}
-
-		size_t total_steps = wire_1_steps + wire_2_steps;
-
-		if (total_steps < min_steps) {
-			min_steps = total_steps;
-		}
-	}
-
-	printf("Day 3, Part 2: %lu\n", min_steps);
+	printf("Day 3, Part 2: %d\n", min_steps);
 
 	// Deallocate wire path
 	free(wire_1_path);
