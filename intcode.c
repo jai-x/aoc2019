@@ -4,7 +4,7 @@
 
 #include "intcode.h"
 
-static int
+static inline int
 get_input(void)
 {
 	int input;
@@ -14,32 +14,46 @@ get_input(void)
 	return input;
 }
 
+static inline int
+left_val(int* memory, int opcode, int address)
+{
+	int mode = opcode % 1000 / 100;
+	int literal = memory[address + 1];
+	return mode ? literal : memory[literal];
+}
+
+static inline int
+right_val(int* memory, int opcode, int address)
+{
+	int mode = opcode % 10000 / 1000;
+	int literal = memory[address + 2];
+	return mode ? literal : memory[literal];
+}
+
 void
 intcode(int* memory)
 {
-	size_t address = 0;
+	int address = 0;
 
 	while (true) {
 		int opcode = memory[address];
 
 		int inst = opcode % 100;
 
-		int left_mode = opcode % 1000 / 100;
-		int right_mode = opcode % 10000 / 1000;
-
-		int left_val = left_mode ? memory[address + 1] : memory[memory[address + 1]];
-		int right_val = right_mode ? memory[address + 2] : memory[memory[address + 2]];
-
 		switch (inst) {
 			case 1: {
 				int store = memory[address + 3];
-				memory[store] = left_val + right_val;
+				int left = left_val(memory, opcode, address);
+				int right = right_val(memory, opcode, address);
+				memory[store] = left + right;
 				address += 4;
 				break;
 			}
 			case 2: {
 				int store = memory[address + 3];
-				memory[store] = left_val * right_val;
+				int left = left_val(memory, opcode, address);
+				int right = right_val(memory, opcode, address);
+				memory[store] = left * right;
 				address += 4;
 				break;
 			}
