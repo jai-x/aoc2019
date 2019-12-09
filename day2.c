@@ -4,34 +4,12 @@
 #include <assert.h>
 
 #include "aoc2019.h"
+#include "intcode.h"
 
 static const char* filename = "./input/day2.txt";
 
-static void
-intcode(int* memory)
-{
-	size_t address = 0;
-	while (memory[address] != 99) {
-		int op = memory[address];
-		int left = memory[address+1];
-		int right = memory[address+2];
-		int store = memory[address+3];
-
-		if (op == 1) {
-			memory[store] = memory[left] + memory[right];
-		}
-
-		if (op == 2) {
-			memory[store] = memory[left] * memory[right];
-		}
-
-		address += 4;
-	}
-}
-
 static char*
-dump_file(FILE* file)
-{
+dump_file(FILE* file) {
 	// Get num bytes
 	fseek(file, 0, SEEK_END);
 	size_t file_bytes = (size_t)ftell(file);
