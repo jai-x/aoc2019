@@ -10,12 +10,11 @@ get_input(void)
 	int input;
 	printf("INPUT: ");
 	scanf("%d", &input);
-	printf("\n");
 	return input;
 }
 
 static inline int
-left_val(int* memory, int opcode, int address)
+first_val(int* memory, int opcode, int address)
 {
 	int mode = opcode % 1000 / 100;
 	int literal = memory[address + 1];
@@ -23,7 +22,7 @@ left_val(int* memory, int opcode, int address)
 }
 
 static inline int
-right_val(int* memory, int opcode, int address)
+second_val(int* memory, int opcode, int address)
 {
 	int mode = opcode % 10000 / 1000;
 	int literal = memory[address + 2];
@@ -41,22 +40,25 @@ intcode(int* memory)
 		int inst = opcode % 100;
 
 		switch (inst) {
+			// Add left value right value into third value position
 			case 1: {
 				int store = memory[address + 3];
-				int left = left_val(memory, opcode, address);
-				int right = right_val(memory, opcode, address);
-				memory[store] = left + right;
+				int first = first_val(memory, opcode, address);
+				int second = second_val(memory, opcode, address);
+				memory[store] = first + second;
 				address += 4;
 				break;
 			}
+			// Muliply first value and second into third value position
 			case 2: {
 				int store = memory[address + 3];
-				int left = left_val(memory, opcode, address);
-				int right = right_val(memory, opcode, address);
-				memory[store] = left * right;
+				int first = first_val(memory, opcode, address);
+				int second = second_val(memory, opcode, address);
+				memory[store] = first * second;
 				address += 4;
 				break;
 			}
+			// Read input into first value position
 			case 3: {
 				int store = memory[address + 1];
 				int input = get_input();
@@ -64,9 +66,10 @@ intcode(int* memory)
 				address += 2;
 				break;
 			}
+			// Output first value
 			case 4: {
-				int load = memory[address + 1];
-				printf("OUTPUT: %d\n", memory[load]);
+				int output = first_val(memory, opcode, address);
+				printf("OUTPUT: %d\n", output);
 				address += 2;
 				break;
 			}
