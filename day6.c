@@ -8,7 +8,7 @@
 
 #include "aoc2019.h"
 
-// static const char* filename = "./input/day6.txt";
+static const char* filename = "./input/day6.txt";
 
 struct orbit_pair {
 	char* src;
@@ -30,24 +30,34 @@ struct orbit_pair_list {
 };
 
 static struct orbit_pair_list*
-make_orbit_pair_list(void)
+make_orbit_pair_list(FILE* file)
 {
 	struct orbit_pair_list* l = malloc(sizeof(struct orbit_pair_list));
-	l->num_pairs = 11;
+
+	// stack allocated char array so no need for free
+	char line[9];
+
+	// find the number of lines
+	while (fgets(line, sizeof(line), file)) {
+		l->num_pairs++;
+	}
+	rewind(file);
+
+	// allocate based on number of lines
 	l->pairs = malloc(sizeof(struct orbit_pair*) * l->num_pairs);
 
-	// test input from website
-	l->pairs[0]  = make_orbit_pair("COM", "BBB");
-	l->pairs[1]  = make_orbit_pair("BBB", "CCC");
-	l->pairs[2]  = make_orbit_pair("CCC", "DDD");
-	l->pairs[3]  = make_orbit_pair("DDD", "EEE");
-	l->pairs[4]  = make_orbit_pair("EEE", "FFF");
-	l->pairs[5]  = make_orbit_pair("BBB", "GGG");
-	l->pairs[6]  = make_orbit_pair("GGG", "HHH");
-	l->pairs[7]  = make_orbit_pair("DDD", "III");
-	l->pairs[8]  = make_orbit_pair("EEE", "JJJ");
-	l->pairs[9]  = make_orbit_pair("JJJ", "KKK");
-	l->pairs[10] = make_orbit_pair("KKK", "LLL");
+	// parse the pairs
+	size_t pair_count = 0;
+	while (fgets(line, sizeof(line), file)) {
+		// remove newline char
+		line[7] = '\0';
+
+		// make substrings from the line
+		char* dst = line;
+		char* src = strsep(&dst, ")");
+
+		l->pairs[pair_count++] = make_orbit_pair(src, dst);
+	}
 
 	return l;
 }
@@ -71,7 +81,6 @@ print_orbit_pair_list(struct orbit_pair_list* l)
 		printf("%s -> %s\n", l->pairs[i]->src, l->pairs[i]->dst);
 	}
 }
-
 
 struct planet {
 	char* name;
@@ -147,14 +156,17 @@ free_planet_tree(struct planet* node)
 	free(node);
 }
 
+/*
 static void
 print_planet_tree(struct planet* node, int indent)
 {
 	printf("%*s, o: %zu, c: %zu\n", indent, node->name, node->orbits, node->num_children);
+
 	for (size_t i = 0; i < node->num_children; i++) {
 		print_planet_tree(node->children[i], indent + 5);
 	}
 }
+*/
 
 static size_t
 planet_tree_total_orbits(struct planet* node)
@@ -171,8 +183,16 @@ planet_tree_total_orbits(struct planet* node)
 void
 day6(void)
 {
-	struct orbit_pair_list* list = make_orbit_pair_list();
+	FILE* file = fopen(filename, "r");
+	assert(file);
+
+	struct orbit_pair_list* list = make_orbit_pair_list(file);
 	struct planet* com = make_planet_tree("COM", list);
+
+	fclose(file);
+
+	// print_orbit_pair_list(list);
+	// print_planet_tree(com, 2);
 
 	size_t total_orbits = planet_tree_total_orbits(com);
 	printf("Day 6, Part 1: %zu\n", total_orbits);
