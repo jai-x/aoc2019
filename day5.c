@@ -10,50 +10,6 @@
 
 static const char* filename = "./input/day5.txt";
 
-static char*
-dump_file(FILE* file)
-{
-	// Get num bytes
-	fseek(file, 0, SEEK_END);
-	size_t file_bytes = (size_t)ftell(file);
-	fseek(file, 0, SEEK_SET);
-
-	// Allocate buffer and dump
-	char* file_buffer = malloc(sizeof(char) * file_bytes);
-	fread(file_buffer, sizeof(char), file_bytes, file);
-
-	return file_buffer;
-}
-
-static size_t
-parse_memory_size(char* line)
-{
-	size_t num_commas = 0;
-	for (size_t i = 0; i < strlen(line); i++) {
-		if (line[i] == ',') {
-			num_commas++;
-		}
-	}
-
-	return num_commas + 1;
-}
-
-static int*
-parse_memory(char* line, size_t memory_size)
-{
-	int* memory = malloc(sizeof(int) * memory_size);
-
-	char* line_remainder = line;
-	char *token = NULL;
-	size_t pos = 0;
-
-	while ((token = strsep(&line_remainder, ","))) {
-		memory[pos++] = atoi(token);
-	}
-
-	return memory;
-}
-
 void
 day5(void)
 {
@@ -75,9 +31,27 @@ day5(void)
 
 	free(file_buffer);
 	fclose(file);
-	// End Setup
 
-	intcode(memory);
+	int* memory_copy = malloc(sizeof(int) * memory_size);
+
+	// Part 1
+	memcpy(memory_copy, memory, sizeof(int) * memory_size);
+
+	int p1_input = 1;
+	int p1_output[10] = {0};
+
+	intcode(memory_copy, &p1_input, 1, &p1_output[0], sizeof(p1_output));
+	printf("Day 5, Part 1: %d\n", p1_output[9]);
+
+	// Part 2
+	memcpy(memory_copy, memory, sizeof(int) * memory_size);
+
+	int p2_input = 5;
+	int p2_output = 0;
+
+	intcode(memory_copy, &p2_input, 1, &p2_output, 1);
+
+	printf("Day 5, Part 2: %d\n", p2_output);
 
 	free(memory);
 }

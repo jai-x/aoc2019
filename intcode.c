@@ -2,17 +2,54 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 
 #include "intcode.h"
 
-static inline int
-get_input(void)
+char*
+dump_file(FILE* file) {
+	// Get num bytes
+	fseek(file, 0, SEEK_END);
+	size_t file_bytes = (size_t)ftell(file);
+	fseek(file, 0, SEEK_SET);
+
+	// Allocate buffer and dump file
+	char* file_buffer = malloc(sizeof(char) * file_bytes);
+	fread(file_buffer, sizeof(char), file_bytes, file);
+
+	return file_buffer;
+}
+
+size_t
+parse_memory_size(char* line)
 {
-	int input;
-	printf("INPUT: ");
-	scanf("%d", &input);
-	return input;
+	size_t num_commas = 0;
+	for (size_t i = 0; i < strlen(line); i++) {
+		if (line[i] == ',') {
+			num_commas++;
+		}
+	}
+
+	return num_commas + 1;
+}
+
+int*
+parse_memory(char* line, size_t memory_size)
+{
+	int* memory = malloc(sizeof(int) * memory_size);
+
+	char* line_remainder = line;
+	char *token = NULL;
+	size_t pos = 0;
+
+	while ((token = strsep(&line_remainder, ","))) {
+		memory[pos++] = atoi(token);
+	}
+
+	return memory;
 }
 
 static inline int
@@ -32,9 +69,12 @@ second_val(int* memory, int opcode, int address)
 }
 
 void
-intcode(int* memory)
+intcode(int* memory, int* input, size_t input_size, int* output, size_t output_size)
 {
 	int address = 0;
+
+	size_t input_count = 0;
+	size_t output_count = 0;
 
 	while (true) {
 		int opcode = memory[address];
@@ -63,15 +103,17 @@ intcode(int* memory)
 			// Read input into first value position
 			case 3: {
 				int store = memory[address + 1];
-				int input = get_input();
-				memory[store] = input;
+				assert(input);
+				assert(input_count < input_size);
+				memory[store] = input[input_count++];
 				address += 2;
 				break;
 			}
 			// Output first value
 			case 4: {
-				int output = first_val(memory, opcode, address);
-				printf("OUTPUT: %d\n", output);
+				assert(output);
+				assert(output_count < output_size);
+				output[output_count++] = first_val(memory, opcode, address);
 				address += 2;
 				break;
 			}
