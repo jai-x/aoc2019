@@ -9,6 +9,22 @@
 
 #include "intcode.h"
 
+struct intcode_io*
+init_intcode_io(size_t num_io)
+{
+	struct intcode_io* out = malloc(sizeof(struct intcode_io));
+	out->num_io = num_io;
+	out->io = calloc(num_io, sizeof(int));
+	return out;
+}
+
+void
+free_intcode_io(struct intcode_io* to_free)
+{
+	free(to_free->io);
+	free(to_free);
+}
+
 char*
 dump_file(FILE* file) {
 	// Get num bytes
@@ -42,7 +58,7 @@ parse_memory(char* line, size_t memory_size)
 	int* memory = malloc(sizeof(int) * memory_size);
 
 	char* line_remainder = line;
-	char *token = NULL;
+	char* token = NULL;
 	size_t pos = 0;
 
 	while ((token = strsep(&line_remainder, ","))) {
@@ -69,7 +85,7 @@ second_val(int* memory, int opcode, int address)
 }
 
 void
-intcode(int* memory, int* input, size_t input_size, int* output, size_t output_size)
+intcode(int* memory, struct intcode_io* input, struct intcode_io* output)
 {
 	int address = 0;
 
@@ -104,16 +120,16 @@ intcode(int* memory, int* input, size_t input_size, int* output, size_t output_s
 			case 3: {
 				int store = memory[address + 1];
 				assert(input);
-				assert(input_count < input_size);
-				memory[store] = input[input_count++];
+				assert(input_count < input->num_io);
+				memory[store] = input->io[input_count++];
 				address += 2;
 				break;
 			}
 			// Output first value
 			case 4: {
 				assert(output);
-				assert(output_count < output_size);
-				output[output_count++] = first_val(memory, opcode, address);
+				assert(output_count < output->num_io);
+				output->io[output_count++] = first_val(memory, opcode, address);
 				address += 2;
 				break;
 			}

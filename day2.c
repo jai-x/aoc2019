@@ -34,7 +34,7 @@ day2(void)
 	memory_copy[1] = 12;
 	memory_copy[2] = 2;
 
-	intcode(memory_copy, NULL, 0, NULL, 0);
+	intcode(memory_copy, NULL, NULL);
 
 	printf("Day 2, Part 1: %d\n", memory_copy[0]);
 
@@ -49,7 +49,7 @@ day2(void)
 				memory_copy[1] = noun;
 				memory_copy[2] = verb;
 
-				intcode(memory_copy, NULL, 0, NULL, 0);
+				intcode(memory_copy, NULL, NULL);
 
 				if (memory_copy[0] == target) {
 					printf("Day 2, Part 2: %d\n", 100 * noun + verb);

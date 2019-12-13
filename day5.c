@@ -37,21 +37,35 @@ day5(void)
 	// Part 1
 	memcpy(memory_copy, memory, sizeof(int) * memory_size);
 
-	int p1_input = 1;
-	int p1_output[10] = {0};
+	// inputs and outputs
+	struct intcode_io* p1_input = init_intcode_io(1);
+	struct intcode_io* p1_output = init_intcode_io(10);
 
-	intcode(memory_copy, &p1_input, 1, &p1_output[0], sizeof(p1_output));
-	printf("Day 5, Part 1: %d\n", p1_output[9]);
+	// input value
+	p1_input->io[0] = 1;
+
+	intcode(memory_copy, p1_input, p1_output);
+	printf("Day 5, Part 1: %d\n", p1_output->io[9]);
+
+	free_intcode_io(p1_input);
+	free_intcode_io(p1_output);
 
 	// Part 2
 	memcpy(memory_copy, memory, sizeof(int) * memory_size);
 
-	int p2_input = 5;
-	int p2_output = 0;
+	// inputs and outputs
+	struct intcode_io* p2_input = init_intcode_io(1);
+	struct intcode_io* p2_output = init_intcode_io(1);
 
-	intcode(memory_copy, &p2_input, 1, &p2_output, 1);
+	// input value
+	p2_input->io[0] = 5;
 
-	printf("Day 5, Part 2: %d\n", p2_output);
+	intcode(memory_copy, p2_input, p2_output);
+
+	printf("Day 5, Part 2: %d\n", p2_output->io[0]);
+
+	free_intcode_io(p2_input);
+	free_intcode_io(p2_output);
 
 	free(memory);
 }
