@@ -34,6 +34,9 @@ main(int argc, char** argv)
 	case '6':
 		day6();
 		break;
+	case '7':
+		day7();
+		break;
 	default:
 		printf("No solution for Day %c\n", day);
 	}
