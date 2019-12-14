@@ -169,7 +169,8 @@ intcode(int* memory, struct intcode_io* input, struct intcode_io* output)
 				return;
 			}
 			default: {
-				printf("Unknown opcode: %d\n", opcode);
+				printf("Unknown opcode: %d, address: %d\n", opcode, address);
+				return;
 			}
 		}
 	}
